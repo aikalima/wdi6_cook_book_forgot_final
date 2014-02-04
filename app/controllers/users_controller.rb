@@ -14,7 +14,7 @@ class UsersController < ApplicationController
     if @user.save
       flash[:success] = "Welcome to the Cook Book app!"
       sign_in @user
-      #UserMailer.welcome_email(@user).deliver
+      UserMailer.welcome_email(@user).deliver
       redirect_to @user
     else
       render'new'
@@ -36,16 +36,17 @@ class UsersController < ApplicationController
     if user.nil?
       flash[:error] = "No such email:" + email
     else
-      #UserMailer.forgot_password_email(user).deliver
+      UserMailer.forgot_password_email(user).deliver
       flash[:success] = "Please check your email for reset instructions ..."
     end
     render :forgot_password
   end
 
   def update
-    user_params = params.require(:user).permit(:name, :email)
-    @user = User.find(user_params[:id])
-    @user.update_attributes(name: user_params[:name], email: user_params[:email])
+    user_params = params.require(:user).permit(:name, :email, :password, :password_confirmation)
+    @user = User.find_by_email(user_params["email"])
+        binding.pry
+    @user.update_attributes(password: user_params[:password], password_confirmation: user_params[:password_confirmation])
     render :show
   end
 
